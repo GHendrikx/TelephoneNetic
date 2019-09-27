@@ -9,10 +9,10 @@ public class GameManager : Singleton<GameManager>
     private void Start()
     {
         //begin the conversation
-        Conversation();
+        StartGame();
     }
 
-    public void Conversation()
+    public void StartGame()
     {
         AudioManager.Instance.PlaySound();
     }
