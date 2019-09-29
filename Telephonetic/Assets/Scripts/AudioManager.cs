@@ -6,6 +6,7 @@ using UnityEngine.Timers;
 public class AudioManager : Singleton<AudioManager>
 {
     public AudioClip phoneRing;
+    public bool phoneRinging = true;
     [SerializeField]
     private AudioSource audioSource;
     //incoming Call audio has the intro and incoming calls
@@ -24,6 +25,7 @@ public class AudioManager : Singleton<AudioManager>
     public void PlayQuestion()
     {
         //reset loop for Ring
+        phoneRinging = false;
         audioSource.loop = false;
         audioSource.clip = incomingCallAudio[IncomingCallIndex];
         audioSource.Play();
@@ -36,6 +38,7 @@ public class AudioManager : Singleton<AudioManager>
 
     public void PlayAnswer(int userInput)
     {
+        phoneRinging = false;
         audioPlaying = true;
         //if user input matches the room number of the current call (saved in index), it will play correct response
         if (userInput == correctResponses[responsesIndex].index)
@@ -50,6 +53,7 @@ public class AudioManager : Singleton<AudioManager>
         //if the response doesnt match, it will play an error sound corresponding to that room (user input)
         else
         {
+            phoneRinging = false;
             Debug.Log("Wrong buddy");
             audioSource.clip = wrongResponses[userInput].audio;
             audioSource.Play();
@@ -63,7 +67,7 @@ public class AudioManager : Singleton<AudioManager>
     //Play the ring sound
     public void PlaySound()
     {
-        
+        phoneRinging = true;
         audioSource.clip = phoneRing;
         audioSource.loop = true;
         audioSource.Play();
@@ -78,6 +82,7 @@ public class AudioManager : Singleton<AudioManager>
         audioPlaying = false;
         if (call != Call.IncomingCall)
         {
+            yield return new WaitForSeconds(3);
             PlaySound();
         }
  
