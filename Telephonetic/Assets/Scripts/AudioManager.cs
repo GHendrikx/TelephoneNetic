@@ -71,8 +71,6 @@ public class AudioManager : Singleton<AudioManager>
         audioSource.clip = phoneRing;
         audioSource.loop = true;
         audioSource.Play();
-       
-        //InputManager.Instance.answer = ;
     }
 
     public IEnumerator CheckIfSoundIsOver(AudioClip clip, Call call)

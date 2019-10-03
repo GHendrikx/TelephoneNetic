@@ -23,15 +23,11 @@ public class InputManager : Singleton<InputManager>
     {
         //Play a ring tone and check for Phone being picked up
         if(Input.GetKeyUp(KeyCode.Space) && !AudioManager.Instance.audioPlaying)
-        {
             AudioManager.Instance.PlayQuestion();
-        }
+
         for (int i = 0; i < numpadKeys.Length; i++)
             if (Input.GetKeyUp(numpadKeys[i]) && !AudioManager.Instance.audioPlaying && !AudioManager.Instance.phoneRinging)
-            {
-                Debug.Log(i);
                 AudioManager.Instance.PlayAnswer(i);
-            }
     }
 }
 
