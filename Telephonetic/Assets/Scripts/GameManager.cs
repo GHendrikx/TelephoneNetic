@@ -5,18 +5,8 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
-    private uint fuckedUp;
-    public uint FuckedUp
-    {
-        get
-        {
-            return fuckedUp;
-        }
-        set
-        {
-            FuckedUp = value;
-        }
-    }
+    public uint fuckedUp;
+   
 
     // Start is called before the first frame update
     private void Start()

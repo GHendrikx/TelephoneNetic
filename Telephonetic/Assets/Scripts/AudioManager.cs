@@ -6,6 +6,11 @@ using UnityEngine.Timers;
 public class AudioManager : Singleton<AudioManager>
 {
     public AudioClip phoneRing;
+    public AudioClip pickUpSound;
+    public AudioClip transferCallSound;
+    public AudioClip intro;
+    public AudioClip winState;
+    public AudioClip lossState;
     public bool phoneRinging = true;
     [SerializeField]
     private AudioSource audioSource;
@@ -19,19 +24,25 @@ public class AudioManager : Singleton<AudioManager>
     private IncomingCall[] wrongResponses;
     private int IncomingCallIndex = 0;
     private int responsesIndex = 0;
+    private int myUserInput = 0;
     //added audioPlaying to prevent spamming keys
     public bool audioPlaying = false;
+    bool gameOver = false;
 
     public void PlayQuestion()
     {
         //reset loop for Ring
         phoneRinging = false;
         audioSource.loop = false;
-        audioSource.clip = incomingCallAudio[IncomingCallIndex];
-        audioSource.Play();
-        audioPlaying = true;
+        //audioSource.clip = pickUpSound;
+        //audioSource.Play();
+        //audioPlaying = true;
+        //StartCoroutine(interfaceSounds(pickUpSound));
+        //audioSource.clip = incomingCallAudio[IncomingCallIndex];
+        //audioSource.Play();
+        
         StartCoroutine(CheckIfSoundIsOver(incomingCallAudio[IncomingCallIndex], CallType.IncomingCall));
-        IncomingCallIndex++;
+        //IncomingCallIndex++;
 
 
     }
@@ -40,32 +51,37 @@ public class AudioManager : Singleton<AudioManager>
     {
         phoneRinging = false;
         audioPlaying = true;
+        
         //if user input matches the room number of the current call (saved in index), it will play correct response
         if (userInput == correctResponses[responsesIndex].index)
         {
-            audioSource.clip = correctResponses[responsesIndex].audio;
-            audioSource.Play();
-            audioPlaying = true;
+            Debug.Log("Correct Response");
+            //audioPlaying = true;
+            //audioSource.clip = correctResponses[responsesIndex].audio;
+            //audioSource.Play();
+            //audioPlaying = true;
             StartCoroutine(CheckIfSoundIsOver(correctResponses[responsesIndex].audio, CallType.Answer));
-            responsesIndex++;
+            //responsesIndex++;
         }
 
         //if the response doesnt match, it will play an error sound corresponding to that room (user input)
         else
         {
-            phoneRinging = false;
-            GameManager.Instance.FuckedUp++;
-            audioSource.clip = wrongResponses[userInput].audio;
-            audioSource.Play();
-            audioPlaying = true;
+            Debug.Log("Wrong response");
+            //phoneRinging = false;
+            //GameManager.Instance.fuckedUp++;
+            //audioSource.clip = wrongResponses[userInput].audio;
+            //audioSource.Play();
+            //audioPlaying = true;
+            myUserInput = userInput;
             StartCoroutine(CheckIfSoundIsOver(wrongResponses[userInput].audio, CallType.WrongResponse));
-            responsesIndex++;
-            if (GameManager.Instance.FuckedUp == 3)
-                GameManager.Instance.EndGame();
+            
+            
         }
 
     }
 
+   
     //Play the ring sound
     public void PlaySound()
     {
@@ -79,17 +95,85 @@ public class AudioManager : Singleton<AudioManager>
 
     public IEnumerator CheckIfSoundIsOver(AudioClip clip, CallType call)
     {
+        //play correct interface sounds
+        audioPlaying = true;
+        if (call == CallType.IncomingCall)
+        {
+            audioSource.clip = pickUpSound;
+            audioSource.Play();
+        } else if (call == CallType.Answer)
+        {
+            audioSource.clip = transferCallSound;
+            audioSource.Play();
+        }
+        else if (call == CallType.WrongResponse)
+        {
+            audioSource.clip = transferCallSound;
+            audioSource.Play();
+        }
+
+        yield return new WaitForSeconds(pickUpSound.length);
+
+        // play correct audio 
+        if(call == CallType.IncomingCall)
+        {
+            audioSource.clip = incomingCallAudio[IncomingCallIndex];
+            audioSource.Play();
+            audioPlaying = true;
+            IncomingCallIndex++;
+        } else if( call== CallType.Answer)
+        {
+            audioSource.clip = correctResponses[responsesIndex].audio;
+            audioSource.Play();
+            audioPlaying = true;
+            responsesIndex++;
+        }
+        else if (call == CallType.WrongResponse)
+        {
+            
+            GameManager.Instance.fuckedUp++;
+            audioSource.clip = wrongResponses[myUserInput].audio;
+            audioSource.Play();
+            audioPlaying = true;
+        }
+
 
         yield return new WaitForSeconds(clip.length);
         audioPlaying = false;
-        if (call != CallType.IncomingCall)
+        // add indexes of pranks
+
+        if (call != CallType.IncomingCall || (call == CallType.IncomingCall && (IncomingCallIndex == 1 || IncomingCallIndex == 7 || IncomingCallIndex == 11)))
         {
-            yield return new WaitForSeconds(3);
-            PlaySound();
+            if (call == CallType.IncomingCall || call == CallType.WrongResponse)
+            {
+                responsesIndex++;
+            }
+            yield return new WaitForSeconds(2);
+            if (GameManager.Instance.fuckedUp >= 3 && !gameOver)
+            {
+                incomingCallAudio[IncomingCallIndex] = lossState;
+                PlaySound();
+                gameOver = true;
+                
+            }
+            else
+            {
+                if(!gameOver)
+                PlaySound();
+            }
+                
+            
+
+      
         }
+
+        
 
     }
 
+  
+
+    
 }
 public enum CallType
 {
