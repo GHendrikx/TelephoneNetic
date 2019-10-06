@@ -30,9 +30,9 @@ public class AudioManager : Singleton<AudioManager>
         audioSource.clip = incomingCallAudio[IncomingCallIndex];
         audioSource.Play();
         audioPlaying = true;
-        StartCoroutine(CheckIfSoundIsOver(incomingCallAudio[IncomingCallIndex], Call.IncomingCall));
+        StartCoroutine(CheckIfSoundIsOver(incomingCallAudio[IncomingCallIndex], CallType.IncomingCall));
         IncomingCallIndex++;
-        
+
 
     }
 
@@ -46,7 +46,7 @@ public class AudioManager : Singleton<AudioManager>
             audioSource.clip = correctResponses[responsesIndex].audio;
             audioSource.Play();
             audioPlaying = true;
-            StartCoroutine(CheckIfSoundIsOver(correctResponses[responsesIndex].audio, Call.Answer));
+            StartCoroutine(CheckIfSoundIsOver(correctResponses[responsesIndex].audio, CallType.Answer));
             responsesIndex++;
         }
 
@@ -54,14 +54,16 @@ public class AudioManager : Singleton<AudioManager>
         else
         {
             phoneRinging = false;
-            Debug.Log("Wrong buddy");
+            GameManager.Instance.FuckedUp++;
             audioSource.clip = wrongResponses[userInput].audio;
             audioSource.Play();
             audioPlaying = true;
-            StartCoroutine(CheckIfSoundIsOver(wrongResponses[userInput].audio, Call.WrongResponse));
+            StartCoroutine(CheckIfSoundIsOver(wrongResponses[userInput].audio, CallType.WrongResponse));
             responsesIndex++;
+            if (GameManager.Instance.FuckedUp == 3)
+                GameManager.Instance.EndGame();
         }
-            
+
     }
 
     //Play the ring sound
@@ -71,29 +73,31 @@ public class AudioManager : Singleton<AudioManager>
         audioSource.clip = phoneRing;
         audioSource.loop = true;
         audioSource.Play();
-       
+
         //InputManager.Instance.answer = ;
     }
 
-    public IEnumerator CheckIfSoundIsOver(AudioClip clip, Call call)
+    public IEnumerator CheckIfSoundIsOver(AudioClip clip, CallType call)
     {
-        
+
         yield return new WaitForSeconds(clip.length);
         audioPlaying = false;
-        if (call != Call.IncomingCall)
+        if (call != CallType.IncomingCall)
         {
             yield return new WaitForSeconds(3);
             PlaySound();
         }
- 
+
     }
 
 }
-public enum Call
+public enum CallType
 {
     Answer,
     IncomingCall,
-    WrongResponse
+    WrongResponse,
+    PrankCalls,
+    PhoneSounds
 }
 
 [System.Serializable]
