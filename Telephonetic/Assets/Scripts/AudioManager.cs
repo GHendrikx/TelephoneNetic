@@ -139,7 +139,7 @@ public class AudioManager : Singleton<AudioManager>
 
 
         yield return new WaitForSeconds(clip.length);
-        audioPlaying = false;
+        
         // add indexes of pranks
 
         if (call != CallType.IncomingCall || (call == CallType.IncomingCall && (IncomingCallIndex == 1 || IncomingCallIndex == 7 || IncomingCallIndex == 11)))
@@ -167,7 +167,9 @@ public class AudioManager : Singleton<AudioManager>
       
         }
 
-        
+        audioPlaying = false;
+
+
 
     }
 
